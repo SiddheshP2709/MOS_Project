@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sympy as sp
 import re
-from sympy import symbols, Piecewise, integrate, And, Function, cos, sin
+from sympy import symbols, Piecewise, integrate, And, Function, cos, sin, tan
 
 ################################################################################
 
@@ -77,7 +77,8 @@ reaction_X0 = 0
 moment_X0 = 0
 for q_str, lower, upper in load_segments:
     q_expr = sp.sympify(q_str)  
-    q_piecewise.append((q_expr, And(x >= lower, x < upper)))
+    q_piecewise.append((q_expr, And(x >= lower, x <= upper)))
+
     reaction_X0 = sum(integrate(q_expr, (x, lower, upper)) for q_str, lower, upper in load_segments)
     moment_X0 = sum(integrate(q_expr * x, (x, lower, upper)) for q_str, lower, upper in load_segments)
 q_piecewise.append((0, True))  
@@ -121,6 +122,9 @@ Tresca = []
 sigma_xx =[]
 tau_xy =[]
 sigma_y = 0
+
+
+
 for j in range(len(y_vals)):
     for i in range(x_vals_plot.shape[0]):
         sigma_x = float(M.subs(x, x_vals[i]).evalf()) * y_vals[j] / Izz
@@ -137,10 +141,53 @@ for j in range(len(y_vals)):
 # st.write(sigmas)
 # st.write(Tresca)
 
-# sigma_matrix = np.array(sigmas).reshape(len(y_vals), len(x_vals))
+# sigma_matrix = np.array(sigmas).reshape(len(y_vals), len(x_vals)) 
+#st.write(sigma_xx)
+
+
 
 
 if st.button("Calculate"):
+
+    st.write("### Load Distribution on the Beam")
+
+    # Evaluate q(x) directly with no flipping
+    q_func = sp.lambdify(x, q, modules=["numpy"])
+    q_vals_plot = q_func(x_vals_plot)
+
+    fig, ax = plt.subplots(figsize=(12, 4))
+
+    # Plot the beam as a thick black line
+    ax.hlines(0, 0, spar_length, colors='black', linewidth=4, label='Beam')
+
+    # Plot the actual q(x), where positive means upward
+    ax.plot(x_vals_plot, q_vals_plot, label='q(x) Load (Up = +ve)', color='blue', linestyle='--')
+
+    # Plot arrows based on sign of q(x)
+    for i in range(0, len(x_vals_plot), 5):
+        val = q_vals_plot[i]
+        if val != 0:
+            ax.arrow(
+                x_vals_plot[i],
+                0,               # start from the beam center
+                0,
+                val,             # direction: positive is up
+                head_width=0.4,
+                head_length=max(abs(val) * 0.05, 0.1),
+                fc='blue',
+                ec='blue'
+            )
+
+    # Auto-scale Y-axis based on load
+    pad = max(abs(q_vals_plot)) * 0.2
+    ax.set_ylim(min(q_vals_plot) - pad, max(q_vals_plot) + pad)
+    ax.set_xlim(0, spar_length)
+    ax.set_xlabel("Length along beam (m)")
+    ax.set_ylabel("Load q(x) (N/m)")
+    ax.set_title("Distributed Load q(x) — Positive is Upward")
+    ax.legend()
+    ax.grid(True)
+    st.pyplot(fig)
 
     st.write("Shear force diagram")
     plt.figure(figsize=(10, 5))
@@ -160,7 +207,7 @@ if st.button("Calculate"):
     plt.grid()
     st.pyplot(plt)
 
-    # st.write("sigma_xx plot")
+    st.write("sigma_xx plot")
     st.write("Stress Intensity Visualization (von Mises and Tresca)")
 
     sigma_array = np.array(sigmas).reshape(len(y_vals), len(x_vals))
@@ -204,7 +251,7 @@ if st.button("Calculate"):
 
     plt.figure(figsize=(15, 5))
     contour1 = plt.contourf(X, Y, sigma_xx_array, levels=100, cmap='coolwarm')
-    plt.colorbar(contour1, label='MPa')
+    plt.colorbar(contour1, label='Pa')
     plt.title('Normal Stress ($\\sigma_{xx}$)')
     plt.xlabel('Width (m)')
     plt.ylabel('Height (m)')
@@ -216,7 +263,7 @@ if st.button("Calculate"):
 
     plt.figure(figsize=(15, 5))
     contour2 = plt.contourf(X, Y, tau_xy_array, levels=100, cmap='PuOr')
-    plt.colorbar(contour2, label='MPa')
+    plt.colorbar(contour2, label='Pa')
     plt.title('Shear Stress ($\\tau_{xy}$)')
     plt.xlabel('Width (m)')
     plt.ylabel('Height (m)')
