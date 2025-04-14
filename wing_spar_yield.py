@@ -160,7 +160,7 @@ if st.button("Calculate"):
     plt.grid()
     st.pyplot(plt)
 
-    st.write("sigma_xx plot")
+    # st.write("sigma_xx plot")
     st.write("Stress Intensity Visualization (von Mises and Tresca)")
 
     sigma_array = np.array(sigmas).reshape(len(y_vals), len(x_vals))
@@ -227,7 +227,7 @@ if st.button("Calculate"):
 
     
 
-    st.write("Moment of Inertia Izz:", Izz)
+    # st.write("Moment of Inertia Izz:", Izz)
 
 ################################################################################################################################
 
