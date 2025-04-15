@@ -207,8 +207,8 @@ if st.button("Calculate"):
     plt.grid()
     st.pyplot(plt)
 
-    st.write("sigma_xx plot")
-    st.write("Stress Intensity Visualization (von Mises and Tresca)")
+    # st.write("sigma_xx plot")
+    # st.write("Stress Intensity Visualization (von Mises and Tresca)")
 
     sigma_array = np.array(sigmas).reshape(len(y_vals), len(x_vals))
     tresca_array = np.array(Tresca).reshape(len(y_vals), len(x_vals))
@@ -234,7 +234,7 @@ if st.button("Calculate"):
     plt.title("Von Mises Stress with Yield Contour")
     plt.xlabel("x (m)")
     plt.ylabel("y (m)")
-    plt.colorbar(cp, label='RMS of difference of Principal Stresses (Pa) (For von Mises Criterion)')
+    plt.colorbar(cp, label='Von Mises Stress (Pa) (For von Mises Criterion)')
     st.pyplot(plt)
 
 
