@@ -161,9 +161,9 @@ if st.button("Calculate"):
     ax.hlines(0, 0, spar_length, colors='black', linewidth=4, label='Beam')
 
     # Plot the actual q(x), where positive means upward
-    ax.plot(x_vals_plot, q_vals_plot, label='q(x) Load (Up = +ve)', color='blue', linestyle='--')
+    # ax.plot(x_vals_plot, q_vals_plot, label='q(x) Load (Up = +ve)', color='blue', linestyle='--')
 
-    # Plot arrows based on sign of q(x)
+    # Plot arrows based on sign of q(x) 
     for i in range(0, len(x_vals_plot), 5):
         val = q_vals_plot[i]
         if val != 0:
