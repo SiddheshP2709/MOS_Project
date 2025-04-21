@@ -135,7 +135,7 @@ for j in range(len(y_vals)):
             T = (float(V.subs(x, x_vals_plot[i]).evalf())/(Izz*r))*(((w/2)*((h*f)-(f**2))) + ((r/2)*(((h/2 - f)**2)-(y_vals[j]**2))))
         tau_xy.append(T)
         sigma_x_p, sigma_y_p, tau_xy_p = principle_stress(sigma_x, T)
-        sigma = (((sigma_x_p**2)- (sigma_x_p*sigma_y_p) + (sigma_y_p**2) + (3*(tau_xy_p**2)))**0.5)
+        sigma = (((sigma_x_p**2)- (sigma_x_p*sigma_y_p) + (sigma_y_p**2))**0.5)
         sigmas.append(sigma)
         Tresca.append(tau_xy_p)
 # st.write(sigmas)
