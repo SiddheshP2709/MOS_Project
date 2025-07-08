@@ -13,10 +13,9 @@ st.write("""
          ##  Yield Prediction in Aircraft Wing Spar
          #### *Fill in the required information*""")
 st.sidebar.header("Yield Prediction in Aircraft Wing Spar")
-st.sidebar.caption("The main aim of this project is to predict the "
-"*Yield Strength* of the wing spar of an aircraft using the data provided.")
-st.sidebar.markdown("The data provided consists of the following columns: "
-"Other info")
+st.sidebar.caption("The objective of this project is to analyze the stress distribution in wing spars modeled as cantilevered I-beams under various loading conditions and to identify the locations where yielding is most likely to occur, using both von Mises and Tresca failure criteria.")
+# st.sidebar.markdown("The data provided consists of the following columns: "
+# "Other info")
 ################################################################################
 
 # material = st.radio(
@@ -75,79 +74,80 @@ q_piecewise = []
 #piecewise function
 reaction_X0 = 0
 moment_X0 = 0
-for q_str, lower, upper in load_segments:
-    q_expr = sp.sympify(q_str)  
-    q_piecewise.append((q_expr, And(x >= lower, x <= upper)))
-
-    reaction_X0 = sum(integrate(q_expr, (x, lower, upper)) for q_str, lower, upper in load_segments)
-    moment_X0 = sum(integrate(q_expr * x, (x, lower, upper)) for q_str, lower, upper in load_segments)
-q_piecewise.append((0, True))  
-q = Piecewise(*q_piecewise)
-
-# st.write(reaction_X0)
-# st.write(moment_X0)
-y_vals = np.linspace(-h/2, 0, 25)
-y____ = np.sort(abs(y_vals))
-y_vals = np.concatenate((y_vals, y____))
-
-
-
-x_min = min([lim[1] for lim in load_segments]) if load_segments else 0
-x_max = max([lim[2] for lim in load_segments]) if load_segments else 20
-x_vals = np.linspace(x_min, x_max, 100)
-x_vals_plot = np.linspace(0, spar_length, 100)
-V = integrate(-q, x) + reaction_X0  # Shear force function
-M = integrate(-V, x) + moment_X0 # Moment function
-V_vals = np.array([float(V.subs(x, val).evalf()) for val in x_vals_plot])
-M_vals = np.array([float(M.subs(x, val).evalf()) for val in x_vals_plot])
-
-# st.write("Shear Force Function V(x):", V)
-# st.write("Bending Moment Function M(x):", M)
-
-Izz = 2*(((w*f**3)/12 + ((w*f)*(h-f)**2)/4)) + (r*(h- 2*f)**3)/12
-
-# st.write(y_vals)
-
-def principle_stress(sigma_x, tau_xy):
-    center = sigma_x /2
-    radius = (center**2 + tau_xy**2)**0.5
-    sigma1 = center + radius
-    sigma2 = center - radius
-    tau_max = radius
-    return sigma1, sigma2, tau_max
-
-
-sigmas =[]
-Tresca = []
-sigma_xx =[]
-tau_xy =[]
-sigma_y = 0
-
-
-
-for j in range(len(y_vals)):
-    for i in range(x_vals_plot.shape[0]):
-        sigma_x = float(M.subs(x, x_vals[i]).evalf()) * y_vals[j] / Izz
-        sigma_xx.append(sigma_x)
-        if abs(y_vals[j]>= (h - f)):
-            T = (float(V.subs(x, x_vals_plot[i]).evalf())/(Izz*w))*((w/2)*(((h/2)**2)-(y_vals[j]**2)))
-        else:
-            T = (float(V.subs(x, x_vals_plot[i]).evalf())/(Izz*r))*(((w/2)*((h*f)-(f**2))) + ((r/2)*(((h/2 - f)**2)-(y_vals[j]**2))))
-        tau_xy.append(T)
-        sigma_x_p, sigma_y_p, tau_xy_p = principle_stress(sigma_x, T)
-        sigma = (((sigma_x_p**2)- (sigma_x_p*sigma_y_p) + (sigma_y_p**2))**0.5)
-        sigmas.append(sigma)
-        Tresca.append(tau_xy_p)
-# st.write(sigmas)
-# st.write(Tresca)
-
-# sigma_matrix = np.array(sigmas).reshape(len(y_vals), len(x_vals)) 
-#st.write(sigma_xx)
-
-
-
-
 if st.button("Calculate"):
+    for q_str, lower, upper in load_segments:
+        q_expr = sp.sympify(q_str)  
+        q_piecewise.append((q_expr, And(x >= lower, x <= upper)))
+
+        reaction_X0 = sum(integrate(q_expr, (x, lower, upper)) for q_str, lower, upper in load_segments)
+        moment_X0 = sum(integrate(q_expr * x, (x, lower, upper)) for q_str, lower, upper in load_segments)
+    q_piecewise.append((0, True))  
+    q = Piecewise(*q_piecewise)
+
+    # st.write(reaction_X0)
+    # st.write(moment_X0)
+    y_vals = np.linspace(-h/2, 0, 25)
+    y____ = np.sort(abs(y_vals))
+    y_vals = np.concatenate((y_vals, y____))
+
+
+
+    x_min = min([lim[1] for lim in load_segments]) if load_segments else 0
+    x_max = max([lim[2] for lim in load_segments]) if load_segments else 20
+    x_vals = np.linspace(x_min, x_max, 100)
+    x_vals_plot = np.linspace(0, spar_length, 100)
+    V = integrate(-q, x) + reaction_X0  # Shear force function
+    M = integrate(-V, x) + moment_X0 # Moment function
+    V_vals = np.array([float(V.subs(x, val).evalf()) for val in x_vals_plot])
+    M_vals = np.array([float(M.subs(x, val).evalf()) for val in x_vals_plot])
+
+    # st.write("Shear Force Function V(x):", V)
+    # st.write("Bending Moment Function M(x):", M)
+
+    Izz = 2*(((w*f**3)/12 + ((w*f)*(h-f)**2)/4)) + (r*(h- 2*f)**3)/12
+
+    # st.write(y_vals)
+
+    def principle_stress(sigma_x, tau_xy):
+        center = sigma_x /2
+        radius = (center**2 + tau_xy**2)**0.5
+        sigma1 = center + radius
+        sigma2 = center - radius
+        tau_max = radius
+        return sigma1, sigma2, tau_max
+
+
+    sigmas =[]
+    Tresca = []
+    sigma_xx =[]
+    tau_xy =[]
+    sigma_y = 0
+
+
+
+    for j in range(len(y_vals)):
+        for i in range(x_vals_plot.shape[0]):
+            sigma_x = float(M.subs(x, x_vals[i]).evalf()) * y_vals[j] / Izz
+            sigma_xx.append(sigma_x)
+            if abs(y_vals[j]>= (h - f)):
+                T = (float(V.subs(x, x_vals_plot[i]).evalf())/(Izz*w))*((w/2)*(((h/2)**2)-(y_vals[j]**2)))
+            else:
+                T = (float(V.subs(x, x_vals_plot[i]).evalf())/(Izz*r))*(((w/2)*((h*f)-(f**2))) + ((r/2)*(((h/2 - f)**2)-(y_vals[j]**2))))
+            tau_xy.append(T)
+            sigma_x_p, sigma_y_p, tau_xy_p = principle_stress(sigma_x, T)
+            sigma = (((sigma_x_p**2)- (sigma_x_p*sigma_y_p) + (sigma_y_p**2))**0.5)
+            sigmas.append(sigma)
+            Tresca.append(tau_xy_p)
+    # st.write(sigmas)
+    # st.write(Tresca)
+
+    # sigma_matrix = np.array(sigmas).reshape(len(y_vals), len(x_vals)) 
+    #st.write(sigma_xx)
+
+
+
+
+
 
     st.write("### Load Distribution on the Beam")
 
