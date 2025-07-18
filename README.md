@@ -2,7 +2,7 @@
 
 ## Overview
 
-This Streamlit-based web application was developed as part of the **ME 221 course project** by a group of five students. It performs yield prediction in an aircraft wing spar modeled as a cantilevered I-beam.
+This Streamlit-based web application was developed as part of the **ES 221 course project** by a group of five students. It performs yield prediction in an aircraft wing spar modeled as a cantilevered I-beam.
 
 The app allows users to define a distributed load, computes the resulting stress distribution, and evaluates yielding using both **von Mises** and **Tresca** criteria.
 
