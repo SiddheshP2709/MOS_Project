@@ -6,7 +6,7 @@ This Streamlit-based web application was developed as part of the **ES 221 cours
 
 The app allows users to define a distributed load, computes the resulting stress distribution, and evaluates yielding using both **von Mises** and **Tresca** criteria.
 
-[Access the Yield Prediction Web App](https://mosprojectgroup7.streamlit.app/)
+[Access the Yield Prediction Web App]((https://aircraftyieldpredictor.streamlit.app/))
 
 ---
 
